@@ -290,6 +290,22 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
     return -1;
   }
 
+  bool is_linear = false;
+  void* iccdata;
+  glong iccsize;
+  cmsHPROFILE iccprofile;
+
+  if (TIFFGetField(tiff, TIFFTAG_ICCPROFILE, &iccsize, &iccdata)) {
+    iccprofile = cmsOpenProfileFromMem(iccdata, iccsize);
+    _TIFFfree(iccdata);
+    char tstr[1024];
+    cmsGetProfileInfoASCII(iccprofile, cmsInfoDescription, "en", "US", tstr, 1024);
+    cmsToneCurve *red_trc   = (cmsToneCurve*)cmsReadTag(iccprofile, cmsSigRedTRCTag);
+    is_linear = cmsIsToneCurveLinear(red_trc);
+    std::cout<<std::endl<<std::endl<<"load_tiff(): embedded profile: "<<tstr<<"  is_linear="<<is_linear<<std::endl<<std::endl;
+    cmsCloseProfile( iccprofile );
+  }
+
   TIFFGetFieldDefaulted(tiff, TIFFTAG_COMPRESSION, &compression);
   if (!TIFFGetField(tiff, TIFFTAG_PHOTOMETRIC, &color_space))
   {
@@ -370,14 +386,20 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
       else
         g_strlcpy(format_string, "R'G'B'A ", 32);
     }
-    else
-      g_strlcpy(format_string, "R'G'B' ", 32);
+    else {
+      if( is_linear )
+        g_strlcpy(format_string, "RGB ", 32);
+      else
+        g_strlcpy(format_string, "R'G'B' ", 32);
+    }
     break;
 
   default:
     fallback_mode = TRUE;
     break;
   }
+
+  printf("is_linear: %d   format_string: %s\n", (int)is_linear, format_string);
 
   TIFFGetFieldDefaulted(tiff, TIFFTAG_SAMPLEFORMAT, &sample_format);
   TIFFGetFieldDefaulted(tiff, TIFFTAG_BITSPERSAMPLE, &bits_per_sample);
@@ -937,6 +959,8 @@ void run(const gchar *name,
   } else {
     std::cout<<"plug-in: execution skipped"<<std::endl;
   }
+
+  gimp_displays_flush();
 
   g_unlink (filename);
   g_unlink (pfiname.c_str());
