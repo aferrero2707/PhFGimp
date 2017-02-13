@@ -387,10 +387,14 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
         g_strlcpy(format_string, "R'G'B'A ", 32);
     }
     else {
+#ifdef BABL_FLIPS_DISABLED
+      g_strlcpy(format_string, "RGB ", 32);
+#else
       if( is_linear )
         g_strlcpy(format_string, "RGB ", 32);
       else
         g_strlcpy(format_string, "R'G'B' ", 32);
+#endif
     }
     break;
 
