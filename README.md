@@ -21,5 +21,7 @@ The **phf_gimp** plug-in calls PhotoFlow to non-destructively edit GIMP layer da
 * configure, build and install the plug-ins:
 
   cmake -DBABL_FLIPS_DISABLED=OFF -DCMAKE_BUILD_TYPE=Release ..
+  
   make
+  
   make install (or sudo make install depending on the location of the GIMP plug-ins folder)
