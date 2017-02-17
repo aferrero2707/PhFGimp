@@ -523,6 +523,13 @@ MAIN()
 void query()
 {
   phf_binary = "photoflow";
+#if defined(__APPLE__) && defined (__MACH__)
+  phf_binary = "/Applications/photoflow.app/Contents/MacOS/photoflow";
+#endif
+#ifdef WIN32
+  char* user_path = getenv("USERPROFILE");
+  if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
+#endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
@@ -672,7 +679,7 @@ void run(const gchar *name,
   GimpRunMode run_mode = (GimpRunMode)param[0].data.d_int32;
 
   int size;
-  GimpPDBStatusType status = GIMP_PDB_SUCCESS;
+  GimpPDBStatusType status = GIMP_PDB_CALLING_ERROR;
 
 #if HAVE_GIMP_2_9
   gegl_init(NULL, NULL);
@@ -806,8 +813,10 @@ void run(const gchar *name,
     g_object_unref(buffer);
 
     if( exif_metadata ) {
-      gexiv2_metadata_save_file( /*(GExiv2Metadata*)*/exif_metadata, filename, NULL );
+      GFile* gfile = g_file_new_for_path( filename );
+      gimp_metadata_save_to_file( exif_metadata, gfile, NULL );
       g_object_unref( exif_metadata );
+      g_object_unref( gfile );
     }
   }
 
@@ -828,18 +837,18 @@ void run(const gchar *name,
     GError      **error;
 
     gchar *argv[] =
-      {
-          phf_binary.c_str(),
+    {
+        phf_binary.c_str(),
         "--plugin",
         (gchar *) filename,
         (gchar *) pfiname.c_str(),
         (gchar *) filename_out,
         (gchar *) pfiname_out,
         NULL
-      };
+    };
 
     gimp_progress_init_printf (_("Opening '%s'"),
-                               gimp_filename_to_utf8 (filename));
+        gimp_filename_to_utf8 (filename));
 
     printf ("Starting photoflow... (source_layer_id=%d)\n", source_layer_id);
     char cmd[1000];
@@ -854,7 +863,7 @@ void run(const gchar *name,
     system("which photoflow");
     system(cmd);
     //getchar();
-  /*
+    /*
     if (g_spawn_sync (NULL,
                       argv,
                       NULL,
@@ -867,73 +876,76 @@ void run(const gchar *name,
                       NULL,
                       NULL,
                       error)) {
-   */{
+     */
+    {
       TIFF* tiff  = TIFFOpen( filename_out, "r" );
 
-      guint width, height;
-      if (!TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width)) {
-        g_warning("could not get TIFF image width");
-      } else if (!TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height)) {
-        g_warning("could not get TIFF image height");
-      }
+      if( tiff ) {
+
+        guint width, height;
+        if (!TIFFGetField(tiff, TIFFTAG_IMAGEWIDTH, &width)) {
+          g_warning("could not get TIFF image width");
+        } else if (!TIFFGetField(tiff, TIFFTAG_IMAGELENGTH, &height)) {
+          g_warning("could not get TIFF image height");
+        }
 
 
 
-      // Transfer the output layers back into GIMP.
-      GimpLayerModeEffects layer_blendmode = GIMP_NORMAL_MODE;
-      gint layer_posx = 0, layer_posy = 0;
-      double layer_opacity = 100;
+        // Transfer the output layers back into GIMP.
+        GimpLayerModeEffects layer_blendmode = GIMP_NORMAL_MODE;
+        gint layer_posx = 0, layer_posy = 0;
+        double layer_opacity = 100;
 
-      gint32 dest_layer_id = active_layer_id;
-      if( !replace_layer ) {
-        /* Create the "background" layer to hold the image... */
-        gint32 layer = gimp_layer_new(image_id, _("PhF output"), width,
-            height, GIMP_RGB_IMAGE, 100.0,
-            GIMP_NORMAL_MODE);
-        std::cout<<"PhF plug-in: new layer created"<<std::endl;
+        gint32 dest_layer_id = active_layer_id;
+        if( !replace_layer ) {
+          /* Create the "background" layer to hold the image... */
+          gint32 layer = gimp_layer_new(image_id, _("PhF output"), width,
+              height, GIMP_RGB_IMAGE, 100.0,
+              GIMP_NORMAL_MODE);
+          std::cout<<"PhF plug-in: new layer created"<<std::endl;
 #if defined(GIMP_CHECK_VERSION) && GIMP_CHECK_VERSION(2,7,3)
-        gimp_image_insert_layer(image_id, layer, 0, -1);
+          gimp_image_insert_layer(image_id, layer, 0, -1);
 #else
-        gimp_image_add_layer(image_id, layer, -1);
+          gimp_image_add_layer(image_id, layer, -1);
 #endif
-        std::cout<<"PhF plug-in: new layer added"<<std::endl;
-        dest_layer_id = layer;
-      }
-      /* Get the drawable and set the pixel region for our load... */
+          std::cout<<"PhF plug-in: new layer added"<<std::endl;
+          dest_layer_id = layer;
+        }
+        /* Get the drawable and set the pixel region for our load... */
 #if HAVE_GIMP_2_9
-      buffer = gimp_drawable_get_buffer(dest_layer_id);
+        buffer = gimp_drawable_get_buffer(dest_layer_id);
 #else
-      drawable = gimp_drawable_get(dest_layer_id);
-      gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, drawable->width,
-          drawable->height, TRUE, FALSE);
-      tile_height = gimp_tile_height();
+        drawable = gimp_drawable_get(dest_layer_id);
+        gimp_pixel_rgn_init(&pixel_region, drawable, 0, 0, drawable->width,
+            drawable->height, TRUE, FALSE);
+        tile_height = gimp_tile_height();
 #endif
 
-      std::cout<<"PhF plug-in: copying buffer..."<<std::endl;
+        std::cout<<"PhF plug-in: copying buffer..."<<std::endl;
 #if HAVE_GIMP_2_9
 #ifdef BABL_FLIPS_DISABLED
-      format = "RGB float";
+        format = "RGB float";
 #else
-      format = is_lin_gamma ? "RGB float" : "R'G'B' float";
+        format = is_lin_gamma ? "RGB float" : "R'G'B' float";
 #endif
-      load_tiff( tiff, buffer );
-      gimp_drawable_update(dest_layer_id,0,0,width,height);
-      if( in_width != width || in_height != height )
-        gimp_layer_resize(dest_layer_id,width,height,0,0);
+        load_tiff( tiff, buffer );
+        gimp_drawable_update(dest_layer_id,0,0,width,height);
+        if( in_width != width || in_height != height )
+          gimp_layer_resize(dest_layer_id,width,height,0,0);
 #else
-      for (row = 0; row < Crop.height; row += tile_height) {
-        nrows = MIN(Crop.height - row, tile_height);
-        gimp_pixel_rgn_set_rect(&pixel_region,
-            uf->thumb.buffer + 3 * row * Crop.width, 0, row, Crop.width, nrows);
-      }
+        for (row = 0; row < Crop.height; row += tile_height) {
+          nrows = MIN(Crop.height - row, tile_height);
+          gimp_pixel_rgn_set_rect(&pixel_region,
+              uf->thumb.buffer + 3 * row * Crop.width, 0, row, Crop.width, nrows);
+        }
 #endif
-      // Load PFI file into memory
-      std::ifstream t;
-      std::stringstream strstr;
-      t.open( pfiname_out );
-      strstr << t.rdbuf();
-      char* pfi_buffer = strdup( strstr.str().c_str() );
-      /*
+        // Load PFI file into memory
+        std::ifstream t;
+        std::stringstream strstr;
+        t.open( pfiname_out );
+        strstr << t.rdbuf();
+        char* pfi_buffer = strdup( strstr.str().c_str() );
+        /*
         int length;
         t.seekg(0,std::ios::end);
         length = t.tellg();
@@ -941,25 +953,27 @@ void run(const gchar *name,
         char* buffer = new char[length+1];
         t.read( buffer, length );
         buffer[length] = 0;
-       */
-      t.close();
+         */
+        t.close();
 
-      GimpParasite *cfg_parasite;
-      cfg_parasite = gimp_parasite_new("phf-config",
-          GIMP_PARASITE_PERSISTENT, strlen(pfi_buffer), pfi_buffer);
-      gimp_item_attach_parasite(dest_layer_id, cfg_parasite);
-      gimp_parasite_free(cfg_parasite);
+        GimpParasite *cfg_parasite;
+        cfg_parasite = gimp_parasite_new("phf-config",
+            GIMP_PARASITE_PERSISTENT, strlen(pfi_buffer), pfi_buffer);
+        gimp_item_attach_parasite(dest_layer_id, cfg_parasite);
+        gimp_parasite_free(cfg_parasite);
 
 #if HAVE_GIMP_2_9
-      gegl_buffer_flush(buffer);
-      g_object_unref(buffer);
+        gegl_buffer_flush(buffer);
+        g_object_unref(buffer);
 #else
-      gimp_drawable_flush(drawable);
-      gimp_drawable_detach(drawable);
+        gimp_drawable_flush(drawable);
+        gimp_drawable_detach(drawable);
 #endif
+        status = GIMP_PDB_SUCCESS;
+      }
     }
-   g_unlink (filename_out);
-   g_unlink (pfiname_out);
+    g_unlink (filename_out);
+    g_unlink (pfiname_out);
   } else {
     std::cout<<"plug-in: execution skipped"<<std::endl;
   }
