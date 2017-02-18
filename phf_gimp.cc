@@ -59,7 +59,7 @@ save_tiff (const char* path, GeglBuffer *input,
 
   model = babl_format_get_model(format);
   type = babl_format_get_type(format, 0);
-
+/*
   if (model == babl_model("Y") || model == babl_model("Y'"))
   {
     has_alpha = FALSE;
@@ -83,7 +83,11 @@ save_tiff (const char* path, GeglBuffer *input,
     //model = babl_model("Y'aA");
     samples_per_pixel = 2;
   }
-  else if (model == babl_model("RGB") || model == babl_model("R'G'B'"))
+  else*/ if (model == babl_model("RGB")
+#ifndef BABL_FLIPS_DISABLED
+      || model == babl_model("R'G'B'")
+#endif
+      )
   {
     has_alpha = FALSE;
     color_space = PHOTOMETRIC_RGB;
@@ -91,7 +95,11 @@ save_tiff (const char* path, GeglBuffer *input,
     samples_per_pixel = 3;
     predictor = 2;
   }
-  else if (model == babl_model("RGBA") || model == babl_model("R'G'B'A"))
+  else if (model == babl_model("RGBA")
+#ifndef BABL_FLIPS_DISABLED
+      || model == babl_model("R'G'B'A")
+#endif
+      )
   {
     has_alpha = TRUE;
     alpha_is_premultiplied = FALSE;
@@ -100,7 +108,11 @@ save_tiff (const char* path, GeglBuffer *input,
     samples_per_pixel = 4;
     predictor = 2;
   }
-  else if (model == babl_model("RaGaBaA") || model == babl_model("R'aG'aB'aA"))
+  else if (model == babl_model("RaGaBaA")
+#ifndef BABL_FLIPS_DISABLED
+      || model == babl_model("R'aG'aB'aA")
+#endif
+      )
   {
     has_alpha = TRUE;
     alpha_is_premultiplied = TRUE;
