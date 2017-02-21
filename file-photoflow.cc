@@ -127,15 +127,24 @@ query (void)
       NULL)) {
     gint major, minor, patch;
 
-    if (sscanf (photoflow_stdout,
-        "this is photoflow %d.%d.%d",
-        &major, &minor, &patch) == 3) {
-      if( major >= 0 && minor >= 2 && patch >= 8 ) {
-        have_photoflow = TRUE;
+    printf("stdout:\n%s\n",photoflow_stdout);
+    gchar* version_str = strstr(photoflow_stdout, "this is photoflow");
+    if(version_str) {
+      int nread = sscanf (version_str,
+          "this is photoflow %d.%d.%d",
+          &major, &minor, &patch);
+      printf("nread: %d\n",nread);
+      if ( nread == 3) {
+        printf("Photoflow version: %d.%d.%d\n", major, minor, patch);
+        if( major >= 0 && minor >= 2 && patch >= 8 ) {
+          have_photoflow = TRUE;
+        }
       }
     }
 
     g_free (photoflow_stdout);
+  } else {
+    printf("file-photoflow query(): failed to run photoflow (%s)\n",phf_binary.c_str());
   }
 
   if (! have_photoflow)
@@ -307,9 +316,12 @@ load_image (const gchar  *filename,
   gimp_progress_init_printf (_("Opening '%s'"),
                              gimp_filename_to_utf8 (filename));
 
-  printf ("Starting photoflow...\n");
-  //system("photoflow");
-/**/
+  char cmd[1000];
+  sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
+      filename, filename_out, pfiname);
+  printf ("Starting photoflow: %s\n",cmd);
+  system(cmd);
+/*
   if (g_spawn_sync (NULL,
                     argv,
                     NULL,
@@ -343,7 +355,7 @@ load_image (const gchar  *filename,
         gimp_parasite_free(cfg_parasite);
       }
     }
-/**/
+*/
   printf ("photoflow_stdout: %p\n", (void*)photoflow_stdout);
   if (photoflow_stdout) printf ("%s\n", photoflow_stdout);
   g_free(photoflow_stdout);
