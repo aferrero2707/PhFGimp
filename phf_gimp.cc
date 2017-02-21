@@ -53,7 +53,8 @@ save_tiff (const char* path, GeglBuffer *input,
   TIFFSetField(tiff, TIFFTAG_IMAGEWIDTH, result->width);
   TIFFSetField(tiff, TIFFTAG_IMAGELENGTH, result->height);
 
-  TIFFSetField( tiff, TIFFTAG_ICCPROFILE, iccsize, iccdata );
+  if( (iccdata!=NULL) && (iccsize>0) )
+    TIFFSetField( tiff, TIFFTAG_ICCPROFILE, iccsize, iccdata );
 
   //format = gegl_buffer_get_format(input);
 
@@ -566,11 +567,17 @@ void query()
       NULL)) {
     gint major, minor, patch;
 
-    if (sscanf (photoflow_stdout,
-        "this is photoflow %d.%d.%d",
-        &major, &minor, &patch) == 3) {
-      if( major >= 0 && minor >= 2 && patch >= 8 ) {
-        have_photoflow = TRUE;
+    gchar* version_str = strstr(photoflow_stdout, "this is photoflow");
+    if(version_str) {
+      int nread = sscanf (version_str,
+          "this is photoflow %d.%d.%d",
+          &major, &minor, &patch);
+      printf("nread: %d\n",nread);
+      if ( nread == 3) {
+        printf("Photoflow version: %d.%d.%d\n", major, minor, patch);
+        if( major >= 0 && minor >= 2 && patch >= 8 ) {
+          have_photoflow = TRUE;
+        }
       }
     }
 
