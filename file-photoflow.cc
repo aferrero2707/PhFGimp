@@ -333,7 +333,7 @@ load_image (const gchar  *filename,
                     &photoflow_stdout,
                     NULL,
                     NULL,
-                    error))
+                    error))*/
     {
       image_ID = gimp_file_load (run_mode, filename_out, filename_out);
       if (image_ID != -1) {
@@ -355,7 +355,7 @@ load_image (const gchar  *filename,
         gimp_parasite_free(cfg_parasite);
       }
     }
-*/
+
   printf ("photoflow_stdout: %p\n", (void*)photoflow_stdout);
   if (photoflow_stdout) printf ("%s\n", photoflow_stdout);
   g_free(photoflow_stdout);
@@ -366,6 +366,7 @@ load_image (const gchar  *filename,
   g_unlink (filename_out);
   g_unlink (pfiname);
   g_free (filename_out);
+  g_free (pfiname);
 
   gimp_progress_update (1.0);
 
