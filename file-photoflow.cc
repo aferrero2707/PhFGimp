@@ -109,7 +109,7 @@ query (void)
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
    */
-  gchar    *argv[]           = { phf_binary.c_str(), "--version", NULL };
+  gchar    *argv[]           = { (gchar*)(phf_binary.c_str()), "--version", NULL };
   gchar    *photoflow_stdout = NULL;
   gboolean  have_photoflow   = FALSE;
   gint      i;
@@ -117,8 +117,7 @@ query (void)
   if (g_spawn_sync (NULL,
       argv,
       NULL,
-      G_SPAWN_STDERR_TO_DEV_NULL |
-      G_SPAWN_SEARCH_PATH,
+      (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
       NULL,
       NULL,
       &photoflow_stdout,
@@ -208,7 +207,7 @@ run (const gchar      *name,
 
   INIT_I18N ();
 
-  run_mode = param[0].data.d_int32;
+  run_mode = (GimpRunMode)param[0].data.d_int32;
 
   *nreturn_vals = 1;
   *return_vals  = values;
@@ -305,7 +304,7 @@ load_image (const gchar  *filename,
   /* linear sRGB for now as GIMP uses that internally in many places anyway */
   gchar *argv[] =
     {
-        phf_binary.c_str(),
+      (gchar*)(phf_binary.c_str()),
       "--plugin",
       (gchar *) filename,
       (gchar *) filename_out,
@@ -416,8 +415,7 @@ load_thumbnail_image (const gchar   *filename,
   if (g_spawn_sync (NULL,
                     argv,
                     NULL,
-                    G_SPAWN_STDERR_TO_DEV_NULL |
-                    G_SPAWN_SEARCH_PATH,
+                    (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
                     NULL,
                     NULL,
                     &photoflow_stdout,

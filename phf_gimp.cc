@@ -455,7 +455,7 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
 
   TIFFGetFieldDefaulted(tiff, TIFFTAG_PLANARCONFIG, &planar_config);
 
-  Babl* format = babl_format(format_string);
+  const Babl* format = babl_format(format_string);
 
   guint32 tile_width = (guint32) width;
   guint32 tile_height = 1;
@@ -549,7 +549,7 @@ void query()
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
    */
-  gchar    *argv[]           = { phf_binary.c_str(), "--version", NULL };
+  gchar    *argv[]           = { (gchar*)(phf_binary.c_str()), "--version", NULL };
   gchar    *photoflow_stdout = NULL;
   gboolean  have_photoflow   = FALSE;
   gint      i;
@@ -557,8 +557,7 @@ void query()
   if (g_spawn_sync (NULL,
       argv,
       NULL,
-      G_SPAWN_STDERR_TO_DEV_NULL |
-      G_SPAWN_SEARCH_PATH,
+      (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
       NULL,
       NULL,
       &photoflow_stdout,
@@ -857,7 +856,7 @@ void run(const gchar *name,
 
     gchar *argv[] =
     {
-        phf_binary.c_str(),
+        (gchar*)(phf_binary.c_str()),
         "--plugin",
         (gchar *) filename,
         (gchar *) pfiname.c_str(),
@@ -887,8 +886,7 @@ void run(const gchar *name,
                       argv,
                       NULL,
   //                     G_SPAWN_STDOUT_TO_DEV_NULL |
-                      G_SPAWN_STDERR_TO_DEV_NULL |
-                      G_SPAWN_SEARCH_PATH,
+      (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
                       NULL,
                       NULL,
                       &photoflow_stdout,
