@@ -76,6 +76,14 @@ void
 query (void)
 {
   phf_binary = "photoflow";
+#if defined(__APPLE__) && defined (__MACH__)
+  phf_binary = "/Applications/photoflow.app/Contents/MacOS/photoflow";
+  //phf_binary = "open -W /Applications/photoflow.app --args";
+#endif
+#ifdef WIN32
+  char* user_path = getenv("USERPROFILE");
+  if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
+#endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
@@ -216,6 +224,14 @@ run (const gchar      *name,
   values[0].data.d_status = GIMP_PDB_EXECUTION_ERROR;
 
   phf_binary = "photoflow";
+#if defined(__APPLE__) && defined (__MACH__)
+  //phf_binary = "/Applications/photoflow.app/Contents/MacOS/photoflow";
+  phf_binary = "open -W /Applications/photoflow.app --args";
+#endif
+#ifdef WIN32
+  char* user_path = getenv("USERPROFILE");
+  if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
+#endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
@@ -319,6 +335,7 @@ load_image (const gchar  *filename,
   sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
       filename, filename_out, pfiname);
   printf ("Starting photoflow: %s\n",cmd);
+  system("which photoflow");
   system(cmd);
 /*
   if (g_spawn_sync (NULL,

@@ -538,6 +538,7 @@ void query()
   phf_binary = "photoflow";
 #if defined(__APPLE__) && defined (__MACH__)
   phf_binary = "/Applications/photoflow.app/Contents/MacOS/photoflow";
+  //phf_binary = "open -W /Applications/photoflow.app --args";
 #endif
 #ifdef WIN32
   char* user_path = getenv("USERPROFILE");
@@ -718,6 +719,14 @@ void run(const gchar *name,
   return_values[0].type = GIMP_PDB_STATUS;
 
   phf_binary = "photoflow";
+#if defined(__APPLE__) && defined (__MACH__)
+  //phf_binary = "/Applications/photoflow.app/Contents/MacOS/photoflow";
+  phf_binary = "open -W /Applications/photoflow.app --args";
+#endif
+#ifdef WIN32
+  char* user_path = getenv("USERPROFILE");
+  if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
+#endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
@@ -871,10 +880,10 @@ void run(const gchar *name,
     printf ("Starting photoflow... (source_layer_id=%d)\n", source_layer_id);
     char cmd[1000];
     if( source_layer_id >= 0 ) {
-      sprintf(cmd,"%s --plugin %s %s %s %s", phf_binary.c_str(),
+      sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
           filename, pfiname.c_str(), filename_out, pfiname_out);
     } else {
-      sprintf(cmd,"%s --plugin %s %s %s", phf_binary.c_str(),
+      sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
           pfiname.c_str(), filename_out, pfiname_out);
     }
     std::cout<<"command: "<<cmd<<std::endl;
