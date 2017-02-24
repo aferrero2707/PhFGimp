@@ -195,7 +195,7 @@ query (void)
                                         "",
                                         format->magic);
 
-      gimp_register_thumbnail_loader (format->load_proc, LOAD_THUMB_PROC);
+      //gimp_register_thumbnail_loader (format->load_proc, LOAD_THUMB_PROC);
     }
 }
 
@@ -244,6 +244,7 @@ run (const gchar      *name,
 
       if (format->load_proc && ! strcmp (name, format->load_proc))
         {
+        printf("format: \"%s\", load_image (%s, run_mode, &error)\n", format->file_type, param[1].data.d_string);
           image_ID = load_image (param[1].data.d_string, run_mode, &error);
 
           if (image_ID != -1)
@@ -296,11 +297,14 @@ run (const gchar      *name,
   if (i == G_N_ELEMENTS (file_formats))
     status = GIMP_PDB_CALLING_ERROR;
 
+  printf("Execution of file-photoflow plug-in finished, status=%d (success=%d)\n",(int)status, (int)GIMP_PDB_SUCCESS);
+
   if (status != GIMP_PDB_SUCCESS && error)
     {
       *nreturn_vals = 2;
       values[1].type           = GIMP_PDB_STRING;
       values[1].data.d_string  = error->message;
+      printf("Execution of file-photoflow plug-in failed\n");
     }
 
   values[0].data.d_status = status;
@@ -316,6 +320,8 @@ load_image (const gchar  *filename,
   gchar  *pfiname         = gimp_temp_name ("pfi");
 
   gchar *photoflow_stdout = NULL;
+
+  printf("file-photoflow: load_image() called\n");
 
   /* linear sRGB for now as GIMP uses that internally in many places anyway */
   gchar *argv[] =
@@ -335,7 +341,7 @@ load_image (const gchar  *filename,
   sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
       filename, filename_out, pfiname);
   printf ("Starting photoflow: %s\n",cmd);
-  system("which photoflow");
+  //system("which photoflow");
   system(cmd);
 /*
   if (g_spawn_sync (NULL,
@@ -351,6 +357,8 @@ load_image (const gchar  *filename,
                     NULL,
                     error))*/
     {
+    gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
+    if( test == TRUE ) {
       image_ID = gimp_file_load (run_mode, filename_out, filename_out);
       if (image_ID != -1) {
         gimp_image_set_filename (image_ID, filename);
@@ -370,6 +378,7 @@ load_image (const gchar  *filename,
         gimp_item_attach_parasite(layer, cfg_parasite);
         gimp_parasite_free(cfg_parasite);
       }
+    }
     }
 
   printf ("photoflow_stdout: %p\n", (void*)photoflow_stdout);
