@@ -547,6 +547,8 @@ void query()
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
+  printf("phf_gimp query() called, phf_binary=%s\n",phf_binary.c_str());
+
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
    */
