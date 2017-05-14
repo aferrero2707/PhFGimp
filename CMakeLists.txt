@@ -12,7 +12,8 @@ find_package(PkgConfig)
 
 pkg_check_modules(LCMS2 REQUIRED lcms2) 
 
-find_package (TIFF REQUIRED)
+pkg_check_modules (TIFF REQUIRED libtiff-4)
+#find_package (TIFF REQUIRED)
 
 #find_package (Exiv2)
 pkg_check_modules(GEXIV2 REQUIRED gexiv2)
@@ -36,10 +37,6 @@ if(BABL_FLIPS_DISABLED)
 endif()
 
 
-SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -O0 -g -DNDEBUG -DDO_WARNINGS ${COMPILE_FLAGS}") 
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -DNDEBUG ${COMPILE_FLAGS}  -Wno-unused-parameter") 
-SET(CMAKE_CXX_FLAGS_TEST "-O3 -g -DNDEBUG ${COMPILE_FLAGS}") 
-
 include_directories(${TIFF_INCLUDE_DIRS})
 link_directories(${TIFF_LIBRARY_DIRS})
 
@@ -55,6 +52,18 @@ include_directories(${GIMP_2_9_INCLUDE_DIRS})
 link_directories(${GIMP_2_9_LIBRARY_DIRS})
 include_directories(${GIMPUI_INCLUDE_DIRS})
 link_directories(${GIMPUI_LIBRARY_DIRS})
+
+include(CheckFunctionExists)
+check_function_exists(gimp_register_file_handler_raw HAVE_GIMP_REGISTER_FILE_HANDLER_RAW_FUNCTION)
+if(HAVE_GIMP_REGISTER_FILE_HANDLER_RAW_FUNCTION)
+  set(COMPILE_FLAGS "${COMPILE_FLAGS} -DHAVE_GIMP_REGISTER_FILE_HANDLER_RAW_FUNCTION=1")
+endif(HAVE_GIMP_REGISTER_FILE_HANDLER_RAW_FUNCTION)
+
+
+SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -O0 -g -DNDEBUG -DDO_WARNINGS ${COMPILE_FLAGS}") 
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -DNDEBUG ${COMPILE_FLAGS}  -Wno-unused-parameter") 
+SET(CMAKE_CXX_FLAGS_TEST "-O3 -g -DNDEBUG ${COMPILE_FLAGS}") 
+
 
 add_executable(file-photoflow file-photoflow.cc)
 
