@@ -190,6 +190,11 @@ query (void)
 
       gimp_register_file_handler_mime (format->load_proc,
                                        format->mime_type);
+#ifdef HAVE_GIMP_REGISTER_FILE_HANDLER_RAW_FUNCTION
+      printf("gimp_register_file_handler_raw (%s)\n",
+	     format->load_proc);
+      gimp_register_file_handler_raw (format->load_proc);
+#endif
       gimp_register_magic_load_handler (format->load_proc,
                                         format->extensions,
                                         "",
