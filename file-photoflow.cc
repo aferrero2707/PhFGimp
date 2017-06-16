@@ -347,20 +347,19 @@ load_image (const gchar  *filename,
       filename, filename_out, pfiname);
   printf ("Starting photoflow: %s\n",cmd);
   //system("which photoflow");
-  system(cmd);
-/*
+  //system(cmd);
+  /**/
   if (g_spawn_sync (NULL,
                     argv,
                     NULL,
 //                     G_SPAWN_STDOUT_TO_DEV_NULL |
-                    G_SPAWN_STDERR_TO_DEV_NULL |
-                    G_SPAWN_SEARCH_PATH,
+		    (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
                     NULL,
                     NULL,
                     &photoflow_stdout,
                     NULL,
                     NULL,
-                    error))*/
+                    error))/**/
     {
     gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
     if( test == TRUE ) {
