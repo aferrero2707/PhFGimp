@@ -45,6 +45,7 @@
 
 static std::string phf_binary;
 
+static void     init                 (void);
 static void     query                (void);
 static void     run                  (const gchar      *name,
                                       gint              nparams,
@@ -63,7 +64,7 @@ static gint32   load_thumbnail_image (const gchar      *filename,
 
 const GimpPlugInInfo PLUG_IN_INFO =
 {
-  NULL,  /* init_proc */
+  init,  /* init_proc */
   NULL,  /* quit_proc */
   query, /* query proc */
   run,   /* run_proc */
@@ -72,8 +73,8 @@ const GimpPlugInInfo PLUG_IN_INFO =
 MAIN ()
 
 
-void
-query (void)
+static void
+init (void)
 {
   phf_binary = "photoflow";
 #if defined(__APPLE__) && defined (__MACH__)
@@ -87,7 +88,9 @@ query (void)
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
-  printf("file-photoflow query() called, phf_binary=%s\n",phf_binary.c_str());
+  gchar* exec_path = g_strdup(phf_binary.c_str());
+
+  printf("file-photoflow::init() called, exec_path=%s\n",exec_path);
 
   static const GimpParamDef load_args[] =
   {
@@ -117,7 +120,7 @@ query (void)
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
    */
-  gchar    *argv[]           = { (gchar*)(phf_binary.c_str()), "--version", NULL };
+  gchar    *argv[]           = { exec_path, "--version", NULL };
   gchar    *photoflow_stdout = NULL;
   gboolean  have_photoflow   = FALSE;
   gint      i;
@@ -151,8 +154,10 @@ query (void)
 
     g_free (photoflow_stdout);
   } else {
-    printf("file-photoflow query(): failed to run photoflow (%s)\n",phf_binary.c_str());
+    printf("file-photoflow::init(): failed to run photoflow (%s)\n",phf_binary.c_str());
   }
+
+  g_free (exec_path);
 
   if (! have_photoflow)
     return;
@@ -202,6 +207,17 @@ query (void)
 
       //gimp_register_thumbnail_loader (format->load_proc, LOAD_THUMB_PROC);
     }
+}
+
+static void
+query (void)
+{
+  /* query() is run only the first time for efficiency. Yet this plugin
+   * is dependent on the presence of darktable which may be installed
+   * or uninstalled between GIMP startups. Therefore we should move the
+   * usual gimp_install_procedure() to init() so that the check is done
+   * at every startup instead.
+   */
 }
 
 static void

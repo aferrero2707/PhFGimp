@@ -515,17 +515,19 @@ gboolean sendToGimpMode;
 
 //static GimpPDBStatusType status = GIMP_PDB_SUCCESS;   // The plug-in return status.
 
-void query();
-void run(const gchar *name,
-    gint nparams,
-    const GimpParam *param,
-    gint *nreturn_vals,
-    GimpParam **return_vals);
+
+static void     init                 (void);
+static void     query                (void);
+static void     run                  (const gchar      *name,
+                                      gint              nparams,
+                                      const GimpParam  *param,
+                                      gint             *nreturn_vals,
+                                      GimpParam       **return_vals);
 
 //long pf_save_gimp_image(ufraw_data *uf, GtkWidget *widget);
 
 GimpPlugInInfo PLUG_IN_INFO = {
-    NULL,  /* init_procedure */
+    init,  /* init_procedure */
     NULL,  /* quit_procedure */
     query, /* query_procedure */
     run,   /* run_procedure */
@@ -533,7 +535,8 @@ GimpPlugInInfo PLUG_IN_INFO = {
 
 MAIN()
 
-void query()
+static void 
+init(void)
 {
   phf_binary = "photoflow";
 #if defined(__APPLE__) && defined (__MACH__)
@@ -547,7 +550,7 @@ void query()
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
-  printf("phf_gimp query() called, phf_binary=%s\n",phf_binary.c_str());
+  printf("phf_gimp::init() called, exec_path=%s\n",phf_binary.c_str());
 
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
@@ -569,6 +572,7 @@ void query()
       NULL)) {
     gint major, minor, patch;
 
+    printf("stdout:\n%s\n",photoflow_stdout);
     gchar* version_str = strstr(photoflow_stdout, "this is photoflow");
     if(version_str) {
       int nread = sscanf (version_str,
@@ -584,6 +588,8 @@ void query()
     }
 
     g_free (photoflow_stdout);
+  } else {
+    printf("phf_gimp::init(): failed to run photoflow (%s)\n",phf_binary.c_str());
   }
 
   if (! have_photoflow)
@@ -610,6 +616,17 @@ void query()
       0);                         // return_vals
 
   gimp_plugin_menu_register("plug-in-photoflow", "<Image>/Filters");
+}
+
+static void
+query (void)
+{
+  /* query() is run only the first time for efficiency. Yet this plugin
+   * is dependent on the presence of darktable which may be installed
+   * or uninstalled between GIMP startups. Therefore we should move the
+   * usual gimp_install_procedure() to init() so that the check is done
+   * at every startup instead.
+   */
 }
 
 static bool
