@@ -17,6 +17,8 @@
 
 #include <gexiv2/gexiv2-metadata.h>
 
+#include <libgen.h>
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -550,7 +552,7 @@ init(void)
   char* phf_path = getenv("PHOTOFLOW_PATH");
   if( phf_path ) phf_binary = phf_path;
 
-  printf("phf_gimp::init() called, exec_path=%s\n",phf_binary.c_str());
+  printf("phf_gimp::query() called, exec_path=%s\n",phf_binary.c_str());
 
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
@@ -878,6 +880,9 @@ void run(const gchar *name,
 
     gchar  *filename_out = gimp_temp_name ("tif");
     gchar  *pfiname_out  = gimp_temp_name ("pfi");
+
+    char* tmpdir = dirname( filename_out );
+    mkdir( tmpdir, 0700 );
 
     gchar *photoflow_stdout = NULL;
     GError      **error;

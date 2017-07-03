@@ -21,6 +21,7 @@
 
 //#include "config.h"
 
+#include <libgen.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -63,12 +64,12 @@ static gint32   load_thumbnail_image (const gchar      *filename,
                                       GError          **error);
 
 const GimpPlugInInfo PLUG_IN_INFO =
-{
-  init,  /* init_proc */
-  NULL,  /* quit_proc */
-  query, /* query proc */
-  run,   /* run_proc */
-};
+  {
+    init,  /* init_proc */
+    NULL,  /* quit_proc */
+    query, /* query proc */
+    run,   /* run_proc */
+  };
 
 MAIN ()
 
@@ -93,29 +94,29 @@ init (void)
   printf("file-photoflow::init() called, exec_path=%s\n",exec_path);
 
   static const GimpParamDef load_args[] =
-  {
-    { GIMP_PDB_INT32,  "run-mode",     "The run mode { RUN-INTERACTIVE (0) }" },
-    { GIMP_PDB_STRING, "filename",     "The name of the file to load." },
-    { GIMP_PDB_STRING, "raw-filename", "The name entered" },
-  };
+    {
+      { GIMP_PDB_INT32,  "run-mode",     "The run mode { RUN-INTERACTIVE (0) }" },
+      { GIMP_PDB_STRING, "filename",     "The name of the file to load." },
+      { GIMP_PDB_STRING, "raw-filename", "The name entered" },
+    };
 
   static const GimpParamDef load_return_vals[] =
-  {
-    { GIMP_PDB_IMAGE,  "image",        "Output image" }
-  };
+    {
+      { GIMP_PDB_IMAGE,  "image",        "Output image" }
+    };
 
   static const GimpParamDef thumb_args[] =
-  {
-    { GIMP_PDB_STRING, "filename",     "The name of the file to load"  },
-    { GIMP_PDB_INT32,  "thumb-size",   "Preferred thumbnail size"      }
-  };
+    {
+      { GIMP_PDB_STRING, "filename",     "The name of the file to load"  },
+      { GIMP_PDB_INT32,  "thumb-size",   "Preferred thumbnail size"      }
+    };
 
   static const GimpParamDef thumb_return_vals[] =
-  {
-    { GIMP_PDB_IMAGE,  "image",        "Thumbnail image"               },
-    { GIMP_PDB_INT32,  "image-width",  "Width of full-sized image"     },
-    { GIMP_PDB_INT32,  "image-height", "Height of full-sized image"    }
-  };
+    {
+      { GIMP_PDB_IMAGE,  "image",        "Thumbnail image"               },
+      { GIMP_PDB_INT32,  "image-width",  "Width of full-sized image"     },
+      { GIMP_PDB_INT32,  "image-height", "Height of full-sized image"    }
+    };
 
   /* check if photoflow is installed
    * TODO: allow setting the location of the executable in preferences
@@ -126,23 +127,23 @@ init (void)
   gint      i;
 
   if (g_spawn_sync (NULL,
-      argv,
-      NULL,
-      (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
-      NULL,
-      NULL,
-      &photoflow_stdout,
-      NULL,
-      NULL,
-      NULL)) {
+		    argv,
+		    NULL,
+		    (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
+		    NULL,
+		    NULL,
+		    &photoflow_stdout,
+		    NULL,
+		    NULL,
+		    NULL)) {
     gint major, minor, patch;
 
     printf("stdout:\n%s\n",photoflow_stdout);
     gchar* version_str = strstr(photoflow_stdout, "this is photoflow");
     if(version_str) {
       int nread = sscanf (version_str,
-          "this is photoflow %d.%d.%d",
-          &major, &minor, &patch);
+			  "this is photoflow %d.%d.%d",
+			  &major, &minor, &patch);
       printf("nread: %d\n",nread);
       if ( nread == 3) {
         printf("Photoflow version: %d.%d.%d\n", major, minor, patch);
@@ -163,18 +164,18 @@ init (void)
     return;
 
   /*
-  gimp_install_procedure (LOAD_THUMB_PROC,
-                          "Load thumbnail from a raw image via photoflow",
-                          "This plug-in loads a thumbnail from a raw image by calling photoflow-cli.",
-                          "Tobias Ellinghaus",
-                          "Tobias Ellinghaus",
-                          "2016",
-                          NULL,
-                          NULL,
-                          GIMP_PLUGIN,
-                          G_N_ELEMENTS (thumb_args),
-                          G_N_ELEMENTS (thumb_return_vals),
-                          thumb_args, thumb_return_vals);
+    gimp_install_procedure (LOAD_THUMB_PROC,
+    "Load thumbnail from a raw image via photoflow",
+    "This plug-in loads a thumbnail from a raw image by calling photoflow-cli.",
+    "Tobias Ellinghaus",
+    "Tobias Ellinghaus",
+    "2016",
+    NULL,
+    NULL,
+    GIMP_PLUGIN,
+    G_N_ELEMENTS (thumb_args),
+    G_N_ELEMENTS (thumb_return_vals),
+    thumb_args, thumb_return_vals);
   */
   for (i = 0; i < G_N_ELEMENTS (file_formats); i++)
     {
@@ -265,7 +266,7 @@ run (const gchar      *name,
 
       if (format->load_proc && ! strcmp (name, format->load_proc))
         {
-        printf("format: \"%s\", load_image (%s, run_mode, &error)\n", format->file_type, param[1].data.d_string);
+	  printf("format: \"%s\", load_image (%s, run_mode, &error)\n", format->file_type, param[1].data.d_string);
           image_ID = load_image (param[1].data.d_string, run_mode, &error);
 
           if (image_ID != -1)
@@ -276,6 +277,7 @@ run (const gchar      *name,
             }
           else
             {
+	      printf("file-photoflow::run(): image_ID = -1\n");
               status = GIMP_PDB_EXECUTION_ERROR;
             }
 
@@ -315,8 +317,10 @@ run (const gchar      *name,
         }
     }
 
-  if (i == G_N_ELEMENTS (file_formats))
+  if (i == G_N_ELEMENTS (file_formats)) {
+    printf("file-photoflow::run(): i == G_N_ELEMENTS (file_formats)\n");
     status = GIMP_PDB_CALLING_ERROR;
+  }
 
   printf("Execution of file-photoflow plug-in finished, status=%d (success=%d)\n",(int)status, (int)GIMP_PDB_SUCCESS);
 
@@ -358,9 +362,14 @@ load_image (const gchar  *filename,
   gimp_progress_init_printf (_("Opening '%s'"),
                              gimp_filename_to_utf8 (filename));
 
+  char* tmp_path = strdup(filename_out);
+  char* tmpdir = dirname( tmp_path );
+  mkdir( tmpdir, 0700 );
+  free(tmp_path);
+
   char cmd[1000];
   sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
-      filename, filename_out, pfiname);
+	  filename, filename_out, pfiname);
   printf ("Starting photoflow: %s\n",cmd);
   //system("which photoflow");
   //system(cmd);
@@ -368,7 +377,7 @@ load_image (const gchar  *filename,
   if (g_spawn_sync (NULL,
                     argv,
                     NULL,
-//                     G_SPAWN_STDOUT_TO_DEV_NULL |
+		    //                     G_SPAWN_STDOUT_TO_DEV_NULL |
 		    (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
                     NULL,
                     NULL,
@@ -377,28 +386,34 @@ load_image (const gchar  *filename,
                     NULL,
                     error))/**/
     {
-    gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
-    if( test == TRUE ) {
-      image_ID = gimp_file_load (run_mode, filename_out, filename_out);
-      if (image_ID != -1) {
-        gimp_image_set_filename (image_ID, filename);
-        gint nlayers;
-        gint* layers = gimp_image_get_layers(image_ID, &nlayers);
-        gint layer = layers[nlayers-1];
-        std::ifstream t;
-        std::stringstream strstr;
-        t.open( pfiname );
-        strstr << t.rdbuf();
-        char* buffer = strdup( strstr.str().c_str() );
-        t.close();
+      gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
+      if( test == TRUE ) {
+	image_ID = gimp_file_load (run_mode, filename_out, filename_out);
+	if (image_ID != -1) {
+	  gimp_image_set_filename (image_ID, filename);
+	  gint nlayers;
+	  gint* layers = gimp_image_get_layers(image_ID, &nlayers);
+	  gint layer = layers[nlayers-1];
+	  std::ifstream t;
+	  std::stringstream strstr;
+	  t.open( pfiname );
+	  strstr << t.rdbuf();
+	  char* buffer = strdup( strstr.str().c_str() );
+	  t.close();
 
-        GimpParasite *cfg_parasite;
-        cfg_parasite = gimp_parasite_new("phf-config",
-            GIMP_PARASITE_PERSISTENT, strlen(buffer), buffer);
-        gimp_item_attach_parasite(layer, cfg_parasite);
-        gimp_parasite_free(cfg_parasite);
+	  GimpParasite *cfg_parasite;
+	  cfg_parasite = gimp_parasite_new("phf-config",
+					   GIMP_PARASITE_PERSISTENT, strlen(buffer), buffer);
+	  gimp_item_attach_parasite(layer, cfg_parasite);
+	  gimp_parasite_free(cfg_parasite);
+	} else {
+	  printf("file-photoflow::load_image(): failed to load \"%s\"\n",
+		 filename_out);
+	}
+      } else {
+	printf("file-photoflow::load_image(): file \"%s\" not found\n",
+	       filename_out);
       }
-    }
     }
 
   printf ("photoflow_stdout: %p\n", (void*)photoflow_stdout);
