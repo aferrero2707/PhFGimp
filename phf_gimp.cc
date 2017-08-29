@@ -753,6 +753,13 @@ void run(const gchar *name,
 
   gimp_ui_init("pfgimp", FALSE);
 
+
+  gchar  *filename    = gimp_temp_name ("tif");
+  char* tmp_path = strdup(filename);
+  char* tmpdir = dirname( tmp_path );
+  mkdir( tmpdir, 0700 );
+  free(tmp_path);
+
   std::cout<<"Starting PhotoFlow plug-in"<<std::endl;
 
   int image_id = param[1].data.d_drawable;
@@ -825,8 +832,6 @@ void run(const gchar *name,
   std::string format = "R'G'B' float";
 
   int in_width = 0, in_height = 0;
-
-  gchar  *filename    = gimp_temp_name ("tif");
   if( source_layer_id >= 0 ) {
     // Get input buffer
     in_width = gimp_drawable_width( source_layer_id );
@@ -881,8 +886,7 @@ void run(const gchar *name,
     gchar  *filename_out = gimp_temp_name ("tif");
     gchar  *pfiname_out  = gimp_temp_name ("pfi");
 
-    char* tmpdir = dirname( filename_out );
-    mkdir( tmpdir, 0700 );
+     std::cout<<"  before creating window"<<std::endl;
 
     gchar *photoflow_stdout = NULL;
     GError      **error;
