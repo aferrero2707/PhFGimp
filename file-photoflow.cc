@@ -362,10 +362,11 @@ load_image (const gchar  *filename,
   gimp_progress_init_printf (_("Opening '%s'"),
                              gimp_filename_to_utf8 (filename));
 
-  char* tmp_path = strdup(filename_out);
-  char* tmpdir = dirname( tmp_path );
-  mkdir( tmpdir, 0700 );
-  free(tmp_path);
+  gchar* tmp_path = g_strdup(filename_out);
+  char* tmpdir = g_path_get_dirname( tmp_path );
+  g_mkdir( tmpdir, 0700 );
+  g_free(tmp_path);
+  g_free(tmpdir);
 
   char cmd[1000];
   sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),

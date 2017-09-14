@@ -755,10 +755,11 @@ void run(const gchar *name,
 
 
   gchar  *filename    = gimp_temp_name ("tif");
-  char* tmp_path = strdup(filename);
-  char* tmpdir = dirname( tmp_path );
-  mkdir( tmpdir, 0700 );
-  free(tmp_path);
+  gchar* tmp_path = g_strdup(filename);
+  char* tmpdir = g_path_get_dirname( tmp_path );
+  g_mkdir( tmpdir, 0700 );
+  g_free(tmp_path);
+  g_free(tmpdir);
 
   std::cout<<"Starting PhotoFlow plug-in"<<std::endl;
 
