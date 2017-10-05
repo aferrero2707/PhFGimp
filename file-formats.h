@@ -326,7 +326,7 @@ static const FileFormat file_formats[] =
         "pfi",
         NULL,
 
-        "file-photolflow-pfi-load",
+        "file-photoflow-pfi-load",
         "Load files in the PhotoFlow format via photolflow",
         "This plug-in loads files in PhotoFlow's native format by calling photolflow."
     }
