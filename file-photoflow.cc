@@ -348,17 +348,6 @@ load_image (const gchar  *filename,
 
   printf("file-photoflow: load_image() called\n");
 
-  /* linear sRGB for now as GIMP uses that internally in many places anyway */
-  gchar *argv[] =
-    {
-      (gchar*)(phf_binary.c_str()),
-      "--plugin",
-      (gchar *) filename,
-      (gchar *) filename_out,
-      (gchar *) pfiname,
-      NULL
-    };
-
   gimp_progress_init_printf (_("Opening '%s'"),
                              gimp_filename_to_utf8 (filename));
 
@@ -368,13 +357,23 @@ load_image (const gchar  *filename,
   g_free(tmp_path);
   g_free(tmpdir);
 
+#if defined(__APPLE__) && defined (__MACH__)
   char cmd[1000];
   sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
 	  filename, filename_out, pfiname);
   printf ("Starting photoflow: %s\n",cmd);
   //system("which photoflow");
-  //system(cmd);
-  /**/
+  system(cmd);
+#else
+  gchar *argv[] =
+    {
+      (gchar*)(phf_binary.c_str()),
+      "--plugin",
+      (gchar *) filename,
+      (gchar *) filename_out,
+      (gchar *) pfiname,
+      NULL
+    };
   if (g_spawn_sync (NULL,
                     argv,
                     NULL,
@@ -385,37 +384,38 @@ load_image (const gchar  *filename,
                     &photoflow_stdout,
                     NULL,
                     NULL,
-                    error))/**/
-    {
-      gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
-      if( test == TRUE ) {
-	image_ID = gimp_file_load (run_mode, filename_out, filename_out);
-	if (image_ID != -1) {
-	  gimp_image_set_filename (image_ID, filename);
-	  gint nlayers;
-	  gint* layers = gimp_image_get_layers(image_ID, &nlayers);
-	  gint layer = layers[nlayers-1];
-	  std::ifstream t;
-	  std::stringstream strstr;
-	  t.open( pfiname );
-	  strstr << t.rdbuf();
-	  char* buffer = strdup( strstr.str().c_str() );
-	  t.close();
+                    error))
+#endif
+  {
+    gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
+    if( test == TRUE ) {
+      image_ID = gimp_file_load (run_mode, filename_out, filename_out);
+      if (image_ID != -1) {
+        gimp_image_set_filename (image_ID, filename);
+        gint nlayers;
+        gint* layers = gimp_image_get_layers(image_ID, &nlayers);
+        gint layer = layers[nlayers-1];
+        std::ifstream t;
+        std::stringstream strstr;
+        t.open( pfiname );
+        strstr << t.rdbuf();
+        char* buffer = strdup( strstr.str().c_str() );
+        t.close();
 
-	  GimpParasite *cfg_parasite;
-	  cfg_parasite = gimp_parasite_new("phf-config",
-					   GIMP_PARASITE_PERSISTENT, strlen(buffer), buffer);
-	  gimp_item_attach_parasite(layer, cfg_parasite);
-	  gimp_parasite_free(cfg_parasite);
-	} else {
-	  printf("file-photoflow::load_image(): failed to load \"%s\"\n",
-		 filename_out);
-	}
+        GimpParasite *cfg_parasite;
+        cfg_parasite = gimp_parasite_new("phf-config",
+            GIMP_PARASITE_PERSISTENT, strlen(buffer), buffer);
+        gimp_item_attach_parasite(layer, cfg_parasite);
+        gimp_parasite_free(cfg_parasite);
       } else {
-	printf("file-photoflow::load_image(): file \"%s\" not found\n",
-	       filename_out);
+        printf("file-photoflow::load_image(): failed to load \"%s\"\n",
+            filename_out);
       }
+    } else {
+      printf("file-photoflow::load_image(): file \"%s\" not found\n",
+          filename_out);
     }
+  }
 
   printf ("photoflow_stdout: %p\n", (void*)photoflow_stdout);
   if (photoflow_stdout) printf ("%s\n", photoflow_stdout);

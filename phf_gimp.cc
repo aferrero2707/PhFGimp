@@ -907,6 +907,7 @@ void run(const gchar *name,
         gimp_filename_to_utf8 (filename));
 
     printf ("Starting photoflow... (source_layer_id=%d)\n", source_layer_id);
+
     char cmd[1000];
     if( source_layer_id >= 0 ) {
       sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
@@ -915,8 +916,8 @@ void run(const gchar *name,
       sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
           pfiname.c_str(), filename_out, pfiname_out);
     }
-    std::cout<<"command: "<<cmd<<std::endl;
-    system("which photoflow");
+    printf ("  command: %s\n",cmd);
+    //system("which photoflow");
     system(cmd);
     //getchar();
     /*
