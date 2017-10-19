@@ -83,7 +83,7 @@ init (void)
   //phf_binary = "open -W /Applications/photoflow.app --args";
 #endif
 #ifdef WIN32
-  char* user_path = getenv("USERPROFILE");
+  char* user_path = getenv("ProgramFiles");
   if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
 #endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
@@ -251,7 +251,7 @@ run (const gchar      *name,
   phf_binary = "open -W /Applications/photoflow.app --args";
 #endif
 #ifdef WIN32
-  char* user_path = getenv("USERPROFILE");
+  char* user_path = getenv("ProgramFiles");
   if( user_path ) phf_binary = std::string(user_path) + "\\photoflow\\bin\\photoflow.exe";
 #endif
   char* phf_path = getenv("PHOTOFLOW_PATH");
