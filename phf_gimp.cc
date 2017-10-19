@@ -892,22 +892,12 @@ void run(const gchar *name,
     gchar *photoflow_stdout = NULL;
     GError      **error;
 
-    gchar *argv[] =
-    {
-        (gchar*)(phf_binary.c_str()),
-        "--plugin",
-        (gchar *) filename,
-        (gchar *) pfiname.c_str(),
-        (gchar *) filename_out,
-        (gchar *) pfiname_out,
-        NULL
-    };
-
     gimp_progress_init_printf (_("Opening '%s'"),
         gimp_filename_to_utf8 (filename));
 
     printf ("Starting photoflow... (source_layer_id=%d)\n", source_layer_id);
 
+#if defined(__APPLE__) && defined (__MACH__)
     char cmd[1000];
     if( source_layer_id >= 0 ) {
       sprintf(cmd,"%s --plugin \"%s\" \"%s\" \"%s\" \"%s\"", phf_binary.c_str(),
@@ -920,19 +910,36 @@ void run(const gchar *name,
     //system("which photoflow");
     system(cmd);
     //getchar();
-    /*
-    if (g_spawn_sync (NULL,
-                      argv,
-                      NULL,
+#else
+    gchar *argv1[] =
+    {
+        (gchar*)(phf_binary.c_str()),
+        "--plugin",
+        (gchar *) filename,
+        (gchar *) pfiname.c_str(),
+        (gchar *) filename_out,
+        (gchar *) pfiname_out,
+        NULL
+    };
+
+    gchar *argv2[] =
+    {
+        (gchar*)(phf_binary.c_str()),
+        "--plugin",
+        (gchar *) pfiname.c_str(),
+        (gchar *) filename_out,
+        (gchar *) pfiname_out,
+        NULL
+    };
+
+    gchar *argv = ( source_layer_id >= 0 ) ? argv1 : argv2;
+
+    if (g_spawn_sync (NULL, argv, NULL,
   //                     G_SPAWN_STDOUT_TO_DEV_NULL |
       (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
-                      NULL,
-                      NULL,
-                      &photoflow_stdout,
-                      NULL,
-                      NULL,
-                      error)) {
-     */
+                      NULL, NULL, &photoflow_stdout,
+                      NULL, NULL, error)) {
+#endif
     {
       TIFF* tiff  = TIFFOpen( filename_out, "r" );
 

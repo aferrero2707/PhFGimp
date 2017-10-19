@@ -374,17 +374,11 @@ load_image (const gchar  *filename,
       (gchar *) pfiname,
       NULL
     };
-  if (g_spawn_sync (NULL,
-                    argv,
-                    NULL,
+  if (g_spawn_sync (NULL, argv, NULL,
 		    //                     G_SPAWN_STDOUT_TO_DEV_NULL |
 		    (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
-                    NULL,
-                    NULL,
-                    &photoflow_stdout,
-                    NULL,
-                    NULL,
-                    error))
+                    NULL, NULL, &photoflow_stdout,
+                    NULL, NULL, error))
 #endif
   {
     gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
