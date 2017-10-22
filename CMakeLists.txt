@@ -5,6 +5,10 @@ project(phf_gimp CXX C)
 # options controlling the build process
 option(BABL_FLIPS_DISABLED "BABL flips disabled" OFF)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release")
+endif(NOT CMAKE_BUILD_TYPE)
+
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
