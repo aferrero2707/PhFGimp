@@ -932,13 +932,13 @@ void run(const gchar *name,
         NULL
     };
 
-    gchar *argv = ( source_layer_id >= 0 ) ? argv1 : argv2;
+    gchar **argv = ( source_layer_id >= 0 ) ? argv1 : argv2;
 
     if (g_spawn_sync (NULL, argv, NULL,
   //                     G_SPAWN_STDOUT_TO_DEV_NULL |
       (GSpawnFlags)(G_SPAWN_STDERR_TO_DEV_NULL | G_SPAWN_SEARCH_PATH),
                       NULL, NULL, &photoflow_stdout,
-                      NULL, NULL, error)) {
+                      NULL, NULL, error))
 #endif
     {
       TIFF* tiff  = TIFFOpen( filename_out, "r" );
