@@ -419,7 +419,7 @@ load_image (const gchar  *filename,
   printf ("filename_out: %s\n", filename_out);
   printf ("pfiname: %s\n", pfiname);
 
-  //g_unlink (filename_out);
+  g_unlink (filename_out);
   g_unlink (pfiname);
   g_free (filename_out);
   g_free (pfiname);
