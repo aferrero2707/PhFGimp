@@ -382,6 +382,7 @@ load_image (const gchar  *filename,
 #endif
   {
     gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
+    std::cout<<"g_file_test ("<<filename_out<<",G_FILE_TEST_EXISTS): "<<test<<std::endl;
     if( test == TRUE ) {
       image_ID = gimp_file_load (run_mode, filename_out, filename_out);
       if (image_ID != -1) {
@@ -418,7 +419,7 @@ load_image (const gchar  *filename,
   printf ("filename_out: %s\n", filename_out);
   printf ("pfiname: %s\n", pfiname);
 
-  g_unlink (filename_out);
+  //g_unlink (filename_out);
   g_unlink (pfiname);
   g_free (filename_out);
   g_free (pfiname);
