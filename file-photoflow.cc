@@ -382,7 +382,7 @@ load_image (const gchar  *filename,
 #endif
   {
     gboolean test = g_file_test (filename_out,G_FILE_TEST_EXISTS);
-    printf("g_file_test (%s,G_FILE_TEST_EXISTS): %d\n", filename_out.c_str(), (int)test);
+    printf("g_file_test (%s,G_FILE_TEST_EXISTS): %d\n", filename_out, (int)test);
     if( test == TRUE ) {
       image_ID = gimp_file_load (run_mode, filename_out, filename_out);
       if (image_ID != -1) {
