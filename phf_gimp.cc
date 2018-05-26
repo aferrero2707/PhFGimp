@@ -30,7 +30,7 @@
 static int
 save_tiff (const char* path, GeglBuffer *input,
     const GeglRectangle *result, const Babl *format,
-    void* iccdata, glong iccsize)
+    const guint8* iccdata, gsize iccsize)
 {
   gshort color_space, compression = COMPRESSION_NONE;
   gushort bits_per_sample, samples_per_pixel;
@@ -308,7 +308,7 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
   bool is_linear = false;
   void* iccdata;
   glong iccsize;
-  cmsHPROFILE iccprofile;
+  cmsHPROFILE iccprofile = NULL;
 
   if (TIFFGetField(tiff, TIFFTAG_ICCPROFILE, &iccsize, &iccdata)) {
     iccprofile = cmsOpenProfileFromMem(iccdata, iccsize);
@@ -812,22 +812,25 @@ void run(const gchar *name,
 
   //GimpParasite *exif_parasite = gimp_image_parasite_find( image_id, "gimp-image-metadata" );
   GimpMetadata* exif_metadata = gimp_image_get_metadata( image_id );
-  GimpParasite *icc_parasite  = gimp_image_parasite_find( image_id, "icc-profile" );
-  glong iccsize = 0;
-  void* iccdata = NULL;
+  //GimpParasite *icc_parasite  = gimp_image_parasite_find( image_id, "icc-profile" );
+  GimpColorProfile *gimp_profile = gimp_image_get_effective_color_profile( image_id );
 
   std::cout<<std::endl<<std::endl
       <<"image_id: "<<image_id
-      <<"  ICC parasite: "<<icc_parasite
+      //<<"  ICC parasite: "<<icc_parasite
+      <<"  GIMP profile: "<<gimp_profile
       <<"  EXIF metadata: "<<exif_metadata
       <<std::endl<<std::endl;
-
+  /*
   if( icc_parasite && gimp_parasite_data_size( icc_parasite ) > 0 &&
       gimp_parasite_data( icc_parasite ) != NULL ) {
     iccsize = gimp_parasite_data_size( icc_parasite );
     iccdata = malloc( iccsize );
     memcpy( iccdata, gimp_parasite_data( icc_parasite ), iccsize );
   }
+  */
+  gsize iccsize = 0;
+  const guint8* iccdata = gimp_profile ? gimp_color_profile_get_icc_profile( gimp_profile, &iccsize ) : NULL;
 
   cmsBool is_lin_gamma = false;
   std::string format = "R'G'B' float";
