@@ -316,7 +316,7 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
     char tstr[1024];
     cmsGetProfileInfoASCII(iccprofile, cmsInfoDescription, "en", "US", tstr, 1024);
     cmsToneCurve *red_trc   = (cmsToneCurve*)cmsReadTag(iccprofile, cmsSigRedTRCTag);
-    is_linear = cmsIsToneCurveLinear(red_trc);
+    is_linear = red_trc ? cmsIsToneCurveLinear(red_trc) : false;
     std::cout<<std::endl<<std::endl<<"load_tiff(): embedded profile: "<<tstr<<"  is_linear="<<is_linear<<std::endl<<std::endl;
     cmsCloseProfile( iccprofile );
   }
@@ -852,7 +852,7 @@ void run(const gchar *name,
         char tstr[1024];
         cmsGetProfileInfoASCII(iccprofile, cmsInfoDescription, "en", "US", tstr, 1024);
         cmsToneCurve *red_trc   = (cmsToneCurve*)cmsReadTag(iccprofile, cmsSigRedTRCTag);
-        is_lin_gamma = cmsIsToneCurveLinear(red_trc);
+        is_lin_gamma = red_trc ? cmsIsToneCurveLinear(red_trc) : false;
         std::cout<<std::endl<<std::endl<<"embedded profile: "<<tstr<<"  is_lin_gamma="<<is_lin_gamma<<std::endl<<std::endl;
         cmsCloseProfile( iccprofile );
       }
