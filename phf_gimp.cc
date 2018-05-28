@@ -457,7 +457,16 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
 
   TIFFGetFieldDefaulted(tiff, TIFFTAG_PLANARCONFIG, &planar_config);
 
-  const Babl* format = babl_format(format_string);
+  const Babl* buffer_format = gegl_buffer_get_format( output );
+  const Babl* buffer_model = babl_format_get_model( buffer_format );
+  const Babl* buffer_type = babl_format_get_type( buffer_format, 0 );
+  const char* model_str = babl_get_name( buffer_model );
+  std::string format_str = std::string( model_str ) + " float";
+  std::cout<<"format_str: "<<format_str<<std::endl;
+
+
+  //const Babl* format = babl_format(format_string);
+  const Babl* format = babl_format(format_str.c_str());
 
   guint32 tile_width = (guint32) width;
   guint32 tile_height = 1;
@@ -861,11 +870,17 @@ void run(const gchar *name,
     GeglRectangle rect;
     gegl_rectangle_set(&rect,rgn_x,rgn_y,rgn_width,rgn_height);
     buffer = gimp_drawable_get_buffer(source_layer_id);
+    const Babl* buffer_format = gegl_buffer_get_format( buffer );
+    const Babl* buffer_model = babl_format_get_model( buffer_format );
+    const Babl* buffer_type = babl_format_get_type( buffer_format, 0 );
+    const char* model_str = babl_get_name( buffer_model );
 #ifdef BABL_FLIPS_DISABLED
     format = "RGB float";
 #else
-    format = is_lin_gamma ? "RGB float" : "R'G'B' float";
+    //format = is_lin_gamma ? "RGB float" : "R'G'B' float";
+    format = std::string( model_str ) + " float";
 #endif
+    std::cout<<"model_str: "<<model_str<<"  format="<<format<<std::endl;
     save_tiff( filename, buffer, &rect, babl_format(format.c_str()), iccdata, iccsize );
     g_object_unref(buffer);
 
