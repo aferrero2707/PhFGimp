@@ -3,7 +3,7 @@
 #include <gegl.h>
 #endif
 #include <libgimp/gimp.h>
-#include <libgimp/gimpui.h>
+//#include <libgimp/gimpui.h>
 //#include <libgimpbase/gimpbase.h>
 //#include <libgimpwidgets/gimpwidgets.h>
 #include <glib/gstdio.h>
