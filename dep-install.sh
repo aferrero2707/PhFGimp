@@ -1,9 +1,9 @@
 #!/bin/bash
 
 brew install  little-cms2
-
 brew install  openexr
-brew install  intltool gettext json-c json-glib glib-networking gexiv2
+brew reinstall gettext
+brew install  intltool json-c json-glib glib-networking gexiv2
 brew install  gtk+
 
 
@@ -46,6 +46,7 @@ export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib$LD_LIBRARY_PATH"
 #ls $HOME/homebrew/opt
 #ls $HOME/homebrew/opt/gettext/bin
 #ls $HOME/homebrew/bin
+ls /usr/local
 which autopoint
 which gcc
 which libtool
