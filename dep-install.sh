@@ -11,8 +11,8 @@ instdir=/usr/local
 cd "$TRAVIS_BUILD_DIR"
 mkdir -p build && cd build
 
-export PATH="/usr/loacl/opt/gettext/bin:$PATH"
-export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib$LD_LIBRARY_PATH"
+export PATH="/usr/local/opt/gettext/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib:$LD_LIBRARY_PATH"
 #export PKG_CONFIG_PATH="$HOME/homebrew/opt/jpeg-turbo/lib/pkgconfig:$HOME/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
 #export ACLOCAL_PATH="$HOME/homebrew/share/aclocal:$ACLOCAL_PATH"
 #export ACLOCAL_FLAGS="-I $HOME/homebrew/share/aclocal -I $HOME/homebrew/Cellar/gettext/0.19.8.1/share/aclocal/"
@@ -31,8 +31,8 @@ export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib$LD_LIBRARY_PATH"
 #export CC="gcc -march=nocona -mno-sse3 -mtune=generic -I$HOME/homebrew/opt/gettext/include  -I$HOME/homebrew/include -I/usr/X11/include"
 #export CXX="g++ -march=nocona -mno-sse3 -mtune=generic -I$HOME/homebrew/include -I$HOME/homebrew/opt/gettext/include -I/usr/X11/include"
 #export CFLAGS="-g -O2 -I $HOME/homebrew/include -I /usr/X11/include"
-#export CXXFLAGS="-g -O2 -stdlib=libc++ -I $HOME/homebrew/include -I /usr/X11/include"
-#export LDFLAGS="-L$HOME/homebrew/lib -L$HOME/homebrew/opt/gettext/lib -framework Cocoa"
+export CPPFLAGS="-I $/usr/local/opt/gettext/include"
+export LDFLAGS="-L/usr/local/opt/gettext/lib"
 
 
 #HOMEBREW_NO_AUTO_UPDATE=1 brew reinstall --build-from-source --verbose exiv2
