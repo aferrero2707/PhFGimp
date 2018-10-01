@@ -11,8 +11,8 @@ instdir=/usr/local
 cd "$TRAVIS_BUILD_DIR"
 mkdir -p build && cd build
 
-#export PATH="$HOME/homebrew/opt/gettext/bin:$HOME/homebrew/opt/jpeg-turbo:$HOME/homebrew/bin:$HOME/homebrew/opt/gettext/bin:$PATH"
-#export LD_LIBRARY_PATH="$HOME/homebrew/opt/jpeg-turbo/lib:$HOME/homebrew/opt/gettext/lib:$HOME/homebrew/lib:$LD_LIBRARY_PATH"
+export PATH="/usr/loacl/opt/gettext/bin:$PATH"
+export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib$LD_LIBRARY_PATH"
 #export PKG_CONFIG_PATH="$HOME/homebrew/opt/jpeg-turbo/lib/pkgconfig:$HOME/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
 #export ACLOCAL_PATH="$HOME/homebrew/share/aclocal:$ACLOCAL_PATH"
 #export ACLOCAL_FLAGS="-I $HOME/homebrew/share/aclocal -I $HOME/homebrew/Cellar/gettext/0.19.8.1/share/aclocal/"
