@@ -31,6 +31,7 @@ export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib:$LD_LIBRARY_PATH"
 #export CC="gcc -march=nocona -mno-sse3 -mtune=generic -I$HOME/homebrew/opt/gettext/include  -I$HOME/homebrew/include -I/usr/X11/include"
 #export CXX="g++ -march=nocona -mno-sse3 -mtune=generic -I$HOME/homebrew/include -I$HOME/homebrew/opt/gettext/include -I/usr/X11/include"
 #export CFLAGS="-g -O2 -I $HOME/homebrew/include -I /usr/X11/include"
+export CXXFLAGS="-stdlib=libc++"
 export CPPFLAGS="-I $/usr/local/opt/gettext/include"
 export LDFLAGS="-L/usr/local/opt/gettext/lib"
 
