@@ -4,8 +4,8 @@
 #endif
 #include <libgimp/gimp.h>
 #include <libgimp/gimpui.h>
-#include <libgimpbase/gimpbase.h>
-#include <libgimpwidgets/gimpwidgets.h>
+//#include <libgimpbase/gimpbase.h>
+//#include <libgimpwidgets/gimpwidgets.h>
 #include <glib/gstdio.h>
 #include <glib/gi18n.h>
 #include <string.h>
@@ -30,7 +30,7 @@
 static int
 save_tiff (const char* path, GeglBuffer *input,
     const GeglRectangle *result, const Babl *format,
-    void* iccdata, glong iccsize)
+    const guint8* iccdata, gsize iccsize)
 {
   gshort color_space, compression = COMPRESSION_NONE;
   gushort bits_per_sample, samples_per_pixel;
@@ -308,7 +308,7 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
   bool is_linear = false;
   void* iccdata;
   glong iccsize;
-  cmsHPROFILE iccprofile;
+  cmsHPROFILE iccprofile = NULL;
 
   if (TIFFGetField(tiff, TIFFTAG_ICCPROFILE, &iccsize, &iccdata)) {
     iccprofile = cmsOpenProfileFromMem(iccdata, iccsize);
@@ -316,7 +316,7 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
     char tstr[1024];
     cmsGetProfileInfoASCII(iccprofile, cmsInfoDescription, "en", "US", tstr, 1024);
     cmsToneCurve *red_trc   = (cmsToneCurve*)cmsReadTag(iccprofile, cmsSigRedTRCTag);
-    is_linear = cmsIsToneCurveLinear(red_trc);
+    is_linear = red_trc ? cmsIsToneCurveLinear(red_trc) : false;
     std::cout<<std::endl<<std::endl<<"load_tiff(): embedded profile: "<<tstr<<"  is_linear="<<is_linear<<std::endl<<std::endl;
     cmsCloseProfile( iccprofile );
   }
@@ -457,7 +457,16 @@ load_tiff(TIFF* tiff, GeglBuffer *output)
 
   TIFFGetFieldDefaulted(tiff, TIFFTAG_PLANARCONFIG, &planar_config);
 
-  const Babl* format = babl_format(format_string);
+  const Babl* buffer_format = gegl_buffer_get_format( output );
+  const Babl* buffer_model = babl_format_get_model( buffer_format );
+  const Babl* buffer_type = babl_format_get_type( buffer_format, 0 );
+  const char* model_str = babl_get_name( buffer_model );
+  std::string format_str = std::string( model_str ) + " float";
+  std::cout<<"format_str: "<<format_str<<std::endl;
+
+
+  //const Babl* format = babl_format(format_string);
+  const Babl* format = babl_format(format_str.c_str());
 
   guint32 tile_width = (guint32) width;
   guint32 tile_height = 1;
@@ -812,22 +821,25 @@ void run(const gchar *name,
 
   //GimpParasite *exif_parasite = gimp_image_parasite_find( image_id, "gimp-image-metadata" );
   GimpMetadata* exif_metadata = gimp_image_get_metadata( image_id );
-  GimpParasite *icc_parasite  = gimp_image_parasite_find( image_id, "icc-profile" );
-  glong iccsize = 0;
-  void* iccdata = NULL;
+  //GimpParasite *icc_parasite  = gimp_image_parasite_find( image_id, "icc-profile" );
+  GimpColorProfile *gimp_profile = gimp_image_get_effective_color_profile( image_id );
 
   std::cout<<std::endl<<std::endl
       <<"image_id: "<<image_id
-      <<"  ICC parasite: "<<icc_parasite
+      //<<"  ICC parasite: "<<icc_parasite
+      <<"  GIMP profile: "<<gimp_profile
       <<"  EXIF metadata: "<<exif_metadata
       <<std::endl<<std::endl;
-
+  /*
   if( icc_parasite && gimp_parasite_data_size( icc_parasite ) > 0 &&
       gimp_parasite_data( icc_parasite ) != NULL ) {
     iccsize = gimp_parasite_data_size( icc_parasite );
     iccdata = malloc( iccsize );
     memcpy( iccdata, gimp_parasite_data( icc_parasite ), iccsize );
   }
+  */
+  gsize iccsize = 0;
+  const guint8* iccdata = gimp_profile ? gimp_color_profile_get_icc_profile( gimp_profile, &iccsize ) : NULL;
 
   cmsBool is_lin_gamma = false;
   std::string format = "R'G'B' float";
@@ -849,7 +861,7 @@ void run(const gchar *name,
         char tstr[1024];
         cmsGetProfileInfoASCII(iccprofile, cmsInfoDescription, "en", "US", tstr, 1024);
         cmsToneCurve *red_trc   = (cmsToneCurve*)cmsReadTag(iccprofile, cmsSigRedTRCTag);
-        is_lin_gamma = cmsIsToneCurveLinear(red_trc);
+        is_lin_gamma = red_trc ? cmsIsToneCurveLinear(red_trc) : false;
         std::cout<<std::endl<<std::endl<<"embedded profile: "<<tstr<<"  is_lin_gamma="<<is_lin_gamma<<std::endl<<std::endl;
         cmsCloseProfile( iccprofile );
       }
@@ -858,11 +870,17 @@ void run(const gchar *name,
     GeglRectangle rect;
     gegl_rectangle_set(&rect,rgn_x,rgn_y,rgn_width,rgn_height);
     buffer = gimp_drawable_get_buffer(source_layer_id);
+    const Babl* buffer_format = gegl_buffer_get_format( buffer );
+    const Babl* buffer_model = babl_format_get_model( buffer_format );
+    const Babl* buffer_type = babl_format_get_type( buffer_format, 0 );
+    const char* model_str = babl_get_name( buffer_model );
 #ifdef BABL_FLIPS_DISABLED
     format = "RGB float";
 #else
-    format = is_lin_gamma ? "RGB float" : "R'G'B' float";
+    //format = is_lin_gamma ? "RGB float" : "R'G'B' float";
+    format = std::string( model_str ) + " float";
 #endif
+    std::cout<<"model_str: "<<model_str<<"  format="<<format<<std::endl;
     save_tiff( filename, buffer, &rect, babl_format(format.c_str()), iccdata, iccsize );
     g_object_unref(buffer);
 
