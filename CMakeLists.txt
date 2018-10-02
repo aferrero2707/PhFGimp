@@ -44,8 +44,8 @@ endif()
 include_directories(${TIFF_INCLUDE_DIRS})
 link_directories(${TIFF_LIBRARY_DIRS})
 
-include_directories(${LCMS22_INCLUDE_DIRS})
-link_directories(${LCMS22_LIBRARY_DIRS})
+include_directories(${LCMS2_INCLUDE_DIRS})
+link_directories(${LCMS2_LIBRARY_DIRS})
 
 #include_directories(${EXIV2_INCLUDE_DIRS})
 #link_directories(${EXIV2_LIBRARY_DIRS})
