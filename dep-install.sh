@@ -91,7 +91,7 @@ fi
 #	(git clone https://github.com/aferrero2707/PhFGimp.git) || exit 1
 #fi
 cd "$TRAVIS_BUILD_DIR"
-(mkdir -p build && cd build && cmake .. && make) || exit 1
+(mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MACOSX_RPATH=OFF .. && make) || exit 1
 
 
 cd "$TRAVIS_BUILD_DIR"
