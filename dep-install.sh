@@ -103,4 +103,4 @@ cd macdylibbundler || exit 1
 make || exit 1
 
 cd "$TRAVIS_BUILD_DIR/build" || exit 1
-"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/file-photoflow -p @loader_path
+"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/file-photoflow" -p "@loader_path"
