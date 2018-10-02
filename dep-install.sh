@@ -82,6 +82,7 @@ fi
 
 if [ ! -e gimp ]; then
 	(git clone -b gimp-2-10 http://git.gnome.org/browse/gimp) || exit 1
+	(cd gimp && patch -p1 < "$TRAVIS_BUILD_DIR/gimp-icons-osx.patch") || exit 1
 fi
 (cd gimp && TIFF_LIBS="-ltiff -ljpeg -lz" JPEG_LIBS="-ljpeg" ./autogen.sh --disable-gtk-doc --enable-sse=no --disable-python --prefix=${instdir} && make -j 3 install) || exit 1
 #(cd gimp && TIFF_LIBS="-ltiff -ljpeg -lz" JPEG_LIBS="-ljpeg" ./configure --disable-gtk-doc --enable-sse=no --prefix=${instdir} && make -j 1 install) || exit 1
