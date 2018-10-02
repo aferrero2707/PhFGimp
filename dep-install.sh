@@ -1,9 +1,9 @@
 #!/bin/bash
 
-brew install  little-cms2
-brew install  openexr
-brew reinstall gettext
-brew install  intltool json-c json-glib glib-networking gexiv2 librsvg poppler gtk+ pycairo pygtk 
+brew install  little-cms2 || exit 1
+brew install  openexr || exit 1
+brew reinstall gettext || exit 1
+brew install  intltool json-c json-glib glib-networking gexiv2 librsvg poppler gtk+ py2cairo pygtk || exit 1
 
 
 instdir=/usr/local
