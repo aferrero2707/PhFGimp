@@ -91,11 +91,12 @@ fi
 #	(git clone https://github.com/aferrero2707/PhFGimp.git) || exit 1
 #fi
 cd "$TRAVIS_BUILD_DIR"
-(mkdir -p build && cd build && cmake .. && make install)
+(mkdir -p build && cd build && cmake .. && make VERBOSE=1)
 
 
 cd "$TRAVIS_BUILD_DIR"
 mkdir -p tools || exit 1
+cd tools || exit 1
 rm -rf macdylibbundler
 git clone https://github.com/aferrero2707/macdylibbundler.git || exit 1
 cd macdylibbundler || exit 1
