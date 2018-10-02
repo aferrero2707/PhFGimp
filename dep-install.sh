@@ -3,8 +3,7 @@
 brew install  little-cms2
 brew install  openexr
 brew reinstall gettext
-brew install  intltool json-c json-glib glib-networking gexiv2
-brew install  gtk+
+brew install  intltool json-c json-glib glib-networking gexiv2 librsvg poppler gtk+ pycairo pygtk 
 
 
 instdir=/usr/local
