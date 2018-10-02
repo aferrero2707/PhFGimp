@@ -16,7 +16,8 @@ matrix:
           before_script:
             - brew update
             - bash ./dep-install.sh
-
+            - wget -c https://github.com/aferrero2707/uploadtool/raw/master/upload_rotate.sh
+            - bash  ./upload_rotate.sh "continuous" *.tgz
 branches:
   except:
     - # Do not build tags that we create when we upload to GitHub Releases
