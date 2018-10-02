@@ -14,8 +14,8 @@ mkdir -p build && cd build
 export PATH="/usr/local/opt/gettext/bin:$PATH"
 export LD_LIBRARY_PATH="/usr/local/opt/gettext/lib:$LD_LIBRARY_PATH"
 #export PKG_CONFIG_PATH="$HOME/homebrew/opt/jpeg-turbo/lib/pkgconfig:$HOME/homebrew/lib/pkgconfig:$PKG_CONFIG_PATH"
-#export ACLOCAL_PATH="$HOME/homebrew/share/aclocal:$ACLOCAL_PATH"
-#export ACLOCAL_FLAGS="-I $HOME/homebrew/share/aclocal -I $HOME/homebrew/Cellar/gettext/0.19.8.1/share/aclocal/"
+export ACLOCAL_PATH="/usr/local/opt/gettext/share/aclocal:$ACLOCAL_PATH"
+export ACLOCAL_FLAGS="-I /usr/local/opt/gettext/share/aclocal -I $HOME/homebrew/Cellar/gettext/0.19.8.1/share/aclocal/"
 
 #export LD_LIBRARY_PATH="$HOME/homebrew/opt/libffi/lib:$LD_LIBRARY_PATH"
 #export PKG_CONFIG_PATH="$HOME/homebrew/opt/libffi/lib/pkgconfig:$PKG_CONFIG_PATH"
