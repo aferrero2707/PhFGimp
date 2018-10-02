@@ -103,8 +103,8 @@ cd macdylibbundler || exit 1
 make || exit 1
 
 cd "$TRAVIS_BUILD_DIR/build" || exit 1
-"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/file-photoflow" -p "@loader_path"
-"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/phf_gimp" -p "@loader_path"
+"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/file-photoflow" -p "@rpath"
+"$TRAVIS_BUILD_DIR/tools/macdylibbundler/dylibbundler" -od -of -x "$TRAVIS_BUILD_DIR/build/phf_gimp" -p "@rpath"
 
 cd "$TRAVIS_BUILD_DIR/build" || exit 1
 tar czvf "$TRAVIS_BUILD_DIR/PhFGimp.tgz" file-photoflow phf_gimp
