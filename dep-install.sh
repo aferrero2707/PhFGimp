@@ -91,7 +91,7 @@ fi
 #	(git clone https://github.com/aferrero2707/PhFGimp.git) || exit 1
 #fi
 cd "$TRAVIS_BUILD_DIR"
-(mkdir -p build && cd build && cmake -DCMAKE_SKIP_RPATH=ON .. && make VERBOSE=1)
+(mkdir -p build && cd build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_SKIP_RPATH=ON .. && make) || exit 1
 
 
 cd "$TRAVIS_BUILD_DIR"
@@ -106,3 +106,6 @@ for f in "file-photoflow" "phf_gimp";  do
 	./dylibbundler -od -of -x "$TRAVIS_BUILD_DIR/build/$f" -p @rpath
 	install_name_tool -add_rpath "@loader_path/../../.." "$TRAVIS_BUILD_DIR/build/$f"
 done
+
+cd "$TRAVIS_BUILD_DIR/build" || exit 1
+tar czvf "$TRAVIS_BUILD_DIR/PhFGimp.tgz" file-photoflow phf_gimp
