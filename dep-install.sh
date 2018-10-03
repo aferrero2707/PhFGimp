@@ -69,19 +69,19 @@ fi
 
 
 if [ ! -e babl ]; then
-	(git clone https://git.gnome.org/browse/babl) || exit 1
+	(git clone -b BABL_0_1_56 https://git.gnome.org/browse/babl) || exit 1
 fi
 (cd babl && TIFF_LIBS="-ltiff -ljpeg -lz" JPEG_LIBS="-ljpeg" ./autogen.sh --disable-gtk-doc --enable-sse3=no --enable-sse4_1=no --enable-f16c=no --enable-altivec=no --prefix=${instdir} && make && make -j 3 install) || exit 1
 
 if [ ! -e gegl ]; then
-	(git clone https://git.gnome.org/browse/gegl) || exit 1
+	(git clone -b GEGL_0_4_8 https://git.gnome.org/browse/gegl) || exit 1
 fi
 (cd gegl && TIFF_LIBS="-ltiff -ljpeg -lz" JPEG_LIBS="-ljpeg" ./autogen.sh --disable-docs --prefix=${instdir} --enable-gtk-doc-html=no --enable-introspection=no && make -j 3 install) || exit 1
 
 #exit
 
 if [ ! -e gimp ]; then
-	(git clone -b gimp-2-10 http://git.gnome.org/browse/gimp) || exit 1
+	(git clone -b GIMP_2_10_6 http://git.gnome.org/browse/gimp) || exit 1
 	(cd gimp && patch -p1 < "$TRAVIS_BUILD_DIR/gimp-icons-osx.patch") || exit 1
 fi
 (cd gimp && TIFF_LIBS="-ltiff -ljpeg -lz" JPEG_LIBS="-ljpeg" ./autogen.sh --disable-gtk-doc --enable-sse=no --disable-python --prefix=${instdir} && make -j 3 install) || exit 1
@@ -105,6 +105,8 @@ make || exit 1
 for f in "file-photoflow" "phf_gimp";  do
 	./dylibbundler -od -of -x "$TRAVIS_BUILD_DIR/build/$f" -p @rpath
 	install_name_tool -add_rpath "@loader_path/../../.." "$TRAVIS_BUILD_DIR/build/$f"
+	install_name_tool -add_rpath "/tmp/McGimp-2.10.6/Contents/Resources/lib" "$TRAVIS_BUILD_DIR/build/$f"
+	install_name_tool -add_rpath "/tmp/lib-std" "$TRAVIS_BUILD_DIR/build/$f"
 done
 
 cd "$TRAVIS_BUILD_DIR/build" || exit 1
