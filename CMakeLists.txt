@@ -68,7 +68,7 @@ link_directories(${GIMPUI_LIBRARY_DIRS})
 
 SET(CMAKE_CXX_FLAGS_DEBUG "-Wall -O0 -g -DNDEBUG -DDO_WARNINGS ${COMPILE_FLAGS}") 
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ftree-vectorize -DNDEBUG ${COMPILE_FLAGS}  -Wno-unused-parameter") 
-SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -ftree-vectorize -DNDEBUG ${COMPILE_FLAGS}  -Wno-unused-parameter") 
+SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -g -ftree-vectorize -DNDEBUG ${COMPILE_FLAGS}  -Wno-unused-parameter") 
 SET(CMAKE_CXX_FLAGS_TEST "-O3 -g -DNDEBUG ${COMPILE_FLAGS}") 
 
 
